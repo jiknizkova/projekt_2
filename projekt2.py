@@ -27,7 +27,7 @@ def vytvor_tabulku(cursor):
                 datum_vytvoreni DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         ''')
-        print("Tabulka 'testovaci_tabulka' byla vytvořena.")
+        print("Tabulka 'task_manager' byla vytvořena.")
     except mysql.connector.Error as err:
         print(f"Chyba při vytváření tabulky: {err}")
 
@@ -70,7 +70,7 @@ def pridat_ukol(conn, cursor):
 # funkce zobrazení úkolů
 def zobrazit_ukoly(cursor): # Zadání navíc píše zobrazit_ukoly (množné číslo)
     try:
-        cursor.execute("SELECT * FROM ukoly WHERE stav = 'nezahajeno' OR stav = 'probiha'")
+        cursor.execute("SELECT * FROM task_manager WHERE stav = 'nezahajeno' OR stav = 'probiha'")
         seznam = cursor.fetchall()
         
         if not seznam:
