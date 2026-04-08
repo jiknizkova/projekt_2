@@ -129,11 +129,35 @@ if conn is not None:
     cursor = conn.cursor()
 
 
+
+#akce
 pripojeni_db()
 vytvor_tabulku(cursor)
-#pridat_ukol(conn, cursor)
-#zobrazit_ukol(cursor)
-#aktualizovat_ukol(conn, cursor)
-odstranit_ukol (conn, cursor)
+
+while True:
+    hlavni_menu()
+    akce_uzivatele = input ("Vyberte číslo od 1 do 5. ")
+    print()
+
+    if akce_uzivatele == "1":
+        pridat_ukol(conn, cursor)
+
+    elif akce_uzivatele == "2":
+        zobrazit_ukol(cursor)
+       
+    elif akce_uzivatele == "3":
+        aktualizovat_ukol(conn, cursor)
+
+    elif akce_uzivatele == "4":
+        odstranit_ukol(conn, cursor)
+
+    elif akce_uzivatele == "5":
+        print("Program ukončen. ")
+        cursor.close()
+        conn.close()
+        break
+
+    else:
+        print("Ajaj, zadali jste neplatnou volbu, zkuste to znovu.")
 
 
