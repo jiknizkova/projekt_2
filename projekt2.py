@@ -42,8 +42,20 @@ def hlavni_menu():
 # funkce zadani noveho ukolu
 def pridat_ukol(conn, cursor):
     try:
-        nazev_ukolu= input("Zadejte název úkolu: ")
-        popis_ukolu= input("Zadejte popis úkolu: ")
+        # Zajištění, že název nebude prázdný
+        while True:
+            nazev_ukolu = input("Zadejte název úkolu: ").strip()
+            if nazev_ukolu:
+                break
+            print("Název úkolu nesmí být prázdný!")
+
+        # Zajištění, že popis nebude prázdný
+        while True:
+            popis_ukolu = input("Zadejte popis úkolu: ").strip()
+            if popis_ukolu:
+                break
+            print("Popis úkolu nesmí být prázdný!")
+
         stav_ukolu = "nezahajeno"
 
         sql=("INSERT INTO task_manager (nazev, popis, stav) VALUES (%s, %s, %s)")
@@ -56,25 +68,34 @@ def pridat_ukol(conn, cursor):
         print(f"Chyba při vkládání úkolu: {err}")
 
 # funkce zobrazení úkolů
-def zobrazit_ukol(cursor):
+def zobrazit_ukoly(cursor): # Zadání navíc píše zobrazit_ukoly (množné číslo)
     try:
-        cursor.execute("SELECT * FROM task_manager WHERE stav = 'nezahajeno' or stav = 'probiha'")
-        for row in cursor.fetchall():
-            print(row)
+        cursor.execute("SELECT * FROM ukoly WHERE stav = 'nezahajeno' OR stav = 'probiha'")
+        seznam = cursor.fetchall()
+        
+        if not seznam:
+            print("Seznam úkolů je momentálně prázdný.")
+        else:
+            for row in seznam:
+                print(row)
     except mysql.connector.Error as err:
         print(f"Chyba při zobrazení úkolů: {err}")
 
 #  funkce aktualizace úkolu
 def aktualizovat_ukol(conn, cursor):
-    zobrazit_ukol(cursor)
+    zobrazit_ukoly(cursor)
     while True:
         vybrany_ukol = input("Vložte ID úkolu (číslo v prvním sloupci), který chcete aktualizovat a stiskněte enter: ")
 
         if not vybrany_ukol.isdigit():
             print("ID musí být číslo, zkuste to znovu.")
             continue
-    
-        novy_stav = input("Vložte aktuální stav úkolu - probiha/hotovo: ")
+        
+        while True:
+            novy_stav = input("Vložte nový stav úkolu (probiha/hotovo): ").strip().lower()
+            if novy_stav in ['probiha', 'hotovo']:
+                break
+            print("Neplatný stav! Zadejte pouze 'probiha' nebo 'hotovo'.")
 
         try:
             sql_aktualizace=("UPDATE task_manager SET stav = %s WHERE id = %s")
@@ -95,7 +116,7 @@ def aktualizovat_ukol(conn, cursor):
 
 # funkce odstranění úkolu:
 def odstranit_ukol(conn, cursor):
-    zobrazit_ukol(cursor)
+    zobrazit_ukoly(cursor)
     while True:
         ukol_k_odstraneni = input("Vložte ID úkolu (číslo v prvním sloupci), který chcete smazat a stiskněte enter: ")
 
@@ -131,7 +152,6 @@ if conn is not None:
 
 
 #akce
-pripojeni_db()
 vytvor_tabulku(cursor)
 
 while True:
@@ -143,7 +163,7 @@ while True:
         pridat_ukol(conn, cursor)
 
     elif akce_uzivatele == "2":
-        zobrazit_ukol(cursor)
+        zobrazit_ukoly(cursor)
        
     elif akce_uzivatele == "3":
         aktualizovat_ukol(conn, cursor)
