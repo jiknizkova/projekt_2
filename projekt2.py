@@ -67,20 +67,61 @@ def zobrazit_ukol(cursor):
 #  funkce aktualizace úkolu
 def aktualizovat_ukol(conn, cursor):
     zobrazit_ukol(cursor)
-    # zadaní dat od uživatele
-    vybrany_ukol = input("Vložte ID úkolu (číslo v prvním sloupci), který chcete aktualizovat a stiskněte enter: ")
-    novy_stav = input("Vložte aktuální stav úkolu - probiha/hotovo: ")
-    # podmínka platného id:
     while True:
-        #uložení dat do tabulky (resp. změna starýhch)
+        vybrany_ukol = input("Vložte ID úkolu (číslo v prvním sloupci), který chcete aktualizovat a stiskněte enter: ")
+
+        if not vybrany_ukol.isdigit():
+            print("ID musí být číslo, zkuste to znovu.")
+            continue
+    
+        novy_stav = input("Vložte aktuální stav úkolu - probiha/hotovo: ")
+
         try:
             sql_aktualizace=("UPDATE task_manager SET stav = %s WHERE id = %s")
             hodnoty_aktualizace=(novy_stav, vybrany_ukol)
+            cursor.execute(sql_aktualizace, hodnoty_aktualizace)
             conn.commit()
-            print(f"Úkol {vybrany_ukol} byl aktualizován.")
+
+            # kontrolam jestli se změnil nějaký řádek
+            if cursor.rowcount > 0:
+                print(f"Úkol {vybrany_ukol} byl aktualizován.")
+                break
+            else:
+                print(f"Úkol s ID {vybrany_ukol} neexistuje. Zkuste to znovu. ")
+
         except mysql.connector.Error as err:
             print(f"Chyba při aktualizaci úkolu: {err}")
-    
+
+
+# funkce odstranění úkolu:
+def odstranit_ukol(conn, cursor):
+    zobrazit_ukol(cursor)
+    while True:
+        ukol_k_odstraneni = input("Vložte ID úkolu (číslo v prvním sloupci), který chcete smazat a stiskněte enter: ")
+
+
+        if not ukol_k_odstraneni.isdigit():
+            print("ID musí být číslo, zkuste to znovu.")
+            continue
+
+        try:
+            # převedení input hodnoty do dict
+            hodnoty_k_odstraneni = (ukol_k_odstraneni, )
+            sql_odstraneni=("DELETE FROM task_manager WHERE id = %s")
+            cursor.execute(sql_odstraneni, hodnoty_k_odstraneni)
+            conn.commit()
+
+            # kontrolam jestli se změnil nějaký řádek
+            if cursor.rowcount > 0:
+                print(f"Úkol {ukol_k_odstraneni} byl odstraněn.")
+                break
+            else:
+                print(f"Úkol s ID {ukol_k_odstraneni} neexistuje. Zkuste to znovu. ")
+
+        except mysql.connector.Error as err:
+            print(f"Chyba při odstranění úkolu: {err}")
+
+        
 
 # vytvoření kurzoru
 conn = pripojeni_db()
@@ -90,8 +131,9 @@ if conn is not None:
 
 pripojeni_db()
 vytvor_tabulku(cursor)
-pridat_ukol(conn, cursor)
-zobrazit_ukol(cursor)
-aktualizovat_ukol(conn, cursor)
+#pridat_ukol(conn, cursor)
+#zobrazit_ukol(cursor)
+#aktualizovat_ukol(conn, cursor)
+odstranit_ukol (conn, cursor)
 
 
