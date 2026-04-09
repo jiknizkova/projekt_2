@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 import mysql.connector
-from projekt2 import pridat_ukol, aktualizovat_ukol
+from projekt2 import pridat_ukol, aktualizovat_ukol, odstranit_ukol
 
 # priprava dat
 @pytest.fixture(scope="function")
@@ -87,3 +87,47 @@ def test_aktualizovat_ukol_pozitivni(mock_input, db_spojeni):
 
     assert vysledek is not None
     assert vysledek[2] == "probiha"
+
+
+# negativní test pro funkci aktualizovat ukol
+@patch('builtins.input', side_effect=["test_ukol_1", "test popis spravny", "jedna", "1", "probiha"])
+def test_aktualizovat_ukol_negativni(mock_input, db_spojeni):
+    conn, cursor = db_spojeni
+    pridat_ukol(conn, cursor) 
+
+    aktualizovat_ukol(conn, cursor)
+
+    cursor.execute("SELECT nazev, popis, stav FROM task_manager WHERE nazev = 'test_ukol_1'")
+    vysledek =  cursor.fetchone()
+
+    assert vysledek is not None
+    assert vysledek[2] == "probiha"
+
+
+# pozitivní test pro funkci odstranit ukol
+@patch('builtins.input', side_effect=["vynest_kos", "at to tu nesmrdi!", "1"])
+def test_odstranit_ukol_pozitivni(mock_input, db_spojeni):
+    conn, cursor = db_spojeni
+    pridat_ukol(conn, cursor) 
+
+    odstranit_ukol(conn, cursor)
+
+    cursor.execute("SELECT * FROM task_manager")
+    vysledek = cursor.fetchone()
+
+    assert vysledek is None, f"mělo to být prázdné, ale je tam {vysledek}"
+
+
+
+# negativni test pro odstranit_ukol
+@patch('builtins.input', side_effect=["vynest_kos", "at to tu nesmrdi!", "jedna", "1"])
+def test_odstranit_ukol_negativni(mock_input, db_spojeni):
+    conn, cursor = db_spojeni
+    pridat_ukol(conn, cursor) 
+
+    odstranit_ukol(conn, cursor)
+
+    cursor.execute("SELECT * FROM task_manager")
+    vysledek = cursor.fetchone()
+
+    assert vysledek is None, f"mělo to být prázdné, ale je tam {vysledek}"
