@@ -149,35 +149,40 @@ conn = pripojeni_db()
 if conn is not None:
     cursor = conn.cursor()
 
+# přidáme podmínku pro testovací prostředí (poradila ai:))
+if __name__ == "__main__":
+    # vytvoření kurzoru
+    conn = pripojeni_db()
+    if conn is not None:
+        cursor = conn.cursor()
 
+    #akce
+    vytvor_tabulku(cursor)
 
-#akce
-vytvor_tabulku(cursor)
+    while True:
+        hlavni_menu()
+        akce_uzivatele = input ("Vyberte číslo od 1 do 5. ")
+        print()
 
-while True:
-    hlavni_menu()
-    akce_uzivatele = input ("Vyberte číslo od 1 do 5. ")
-    print()
+        if akce_uzivatele == "1":
+            pridat_ukol(conn, cursor)
 
-    if akce_uzivatele == "1":
-        pridat_ukol(conn, cursor)
+        elif akce_uzivatele == "2":
+            zobrazit_ukoly(cursor)
+        
+        elif akce_uzivatele == "3":
+            aktualizovat_ukol(conn, cursor)
 
-    elif akce_uzivatele == "2":
-        zobrazit_ukoly(cursor)
-       
-    elif akce_uzivatele == "3":
-        aktualizovat_ukol(conn, cursor)
+        elif akce_uzivatele == "4":
+            odstranit_ukol(conn, cursor)
 
-    elif akce_uzivatele == "4":
-        odstranit_ukol(conn, cursor)
+        elif akce_uzivatele == "5":
+            print("Program ukončen. ")
+            cursor.close()
+            conn.close()
+            break
 
-    elif akce_uzivatele == "5":
-        print("Program ukončen. ")
-        cursor.close()
-        conn.close()
-        break
-
-    else:
-        print("Ajaj, zadali jste neplatnou volbu, zkuste to znovu.")
+        else:
+            print("Ajaj, zadali jste neplatnou volbu, zkuste to znovu.")
 
 
